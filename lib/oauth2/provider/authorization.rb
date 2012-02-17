@@ -83,7 +83,7 @@ module OAuth2
           fragment = to_query_string(ACCESS_TOKEN, EXPIRES_IN, SCOPE)
           "#{ base_redirect_uri }#{ query.empty? ? '' : '?' + query }##{ fragment }"
         
-        elsif @params[RESPONSE_TYPE] == 'token'
+        elsif @params[RESPONSE_TYPE] == TOKEN
           fragment = to_query_string(ACCESS_TOKEN, EXPIRES_IN, SCOPE, STATE)
           "#{ base_redirect_uri }##{ fragment }"
         
@@ -96,8 +96,8 @@ module OAuth2
       def response_body
         return nil if @client and valid?
         JSON.unparse(
-          ERROR             => INVALID_REQUEST,
-          ERROR_DESCRIPTION => 'This is not a valid OAuth request')
+          ERROR             => @error,
+          ERROR_DESCRIPTION => @error_description)
       end
       
       def response_headers

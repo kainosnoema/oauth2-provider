@@ -2,7 +2,8 @@ module OAuth2
   class Provider
     
     class AccessToken
-      attr_reader :authorization
+      attr_reader :authorization,
+                  :error, :error_description
       
       def initialize(resource_owner = nil, scopes = [], access_token = nil, error = nil)
         @resource_owner = resource_owner
@@ -20,6 +21,13 @@ module OAuth2
       
       def owner
         valid? ? @authorization.owner : nil
+      end
+      
+      def response_body
+        return nil if @authorization and valid?
+        JSON.unparse(
+          ERROR             => @error,
+          ERROR_DESCRIPTION => @error_description)
       end
       
       def response_headers
@@ -50,13 +58,21 @@ module OAuth2
       end
       
       def validate!
-        return @error = ''                 unless @access_token
-        return @error = INVALID_TOKEN      unless @authorization
-        return @error = EXPIRED_TOKEN      if @authorization.expired?
-        return @error = INSUFFICIENT_SCOPE unless @authorization.in_scope?(@scopes)
+        unless @access_token and @authorization
+          @error = INVALID_TOKEN
+          @error_description = 'Invalid access token'
+          return
+        end
         
-        if @resource_owner and @authorization.owner != @resource_owner
+        if @authorization.expired?
+          @error = EXPIRED_TOKEN
+          @error_description = 'Expired access token'
+        end
+        
+        if !@authorization.in_scope?(@scopes) or
+           (@resource_owner and @authorization.owner != @resource_owner)
           @error = INSUFFICIENT_SCOPE
+          @error_description = 'Insufficient scope for resource'
         end
       end
     end

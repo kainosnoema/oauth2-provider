@@ -143,7 +143,7 @@ describe OAuth2::Provider do
         response = get(params)
         validate_json_response(response, 400,
           'error'             => 'invalid_request',
-          'error_description' => 'This is not a valid OAuth request'
+          'error_description' => 'Missing required parameter redirect_uri'
         )
       end
     end
@@ -155,7 +155,7 @@ describe OAuth2::Provider do
         response = get(params)
         validate_json_response(response, 400,
           'error'             => 'invalid_request',
-          'error_description' => 'This is not a valid OAuth request'
+          'error_description' => 'Missing required parameter client_id'
         )
       end
     end
@@ -466,7 +466,7 @@ describe OAuth2::Provider do
         response = request('/user_profile')
         JSON.parse(response.body)['data'].should == 'No soup for you'
         response.code.to_i.should == 401
-        response['WWW-Authenticate'].should == "OAuth realm='Demo App'"
+        response['WWW-Authenticate'].should == "OAuth realm='Demo App', error='invalid_token'"
       end
       
       describe "enforcing SSL" do
