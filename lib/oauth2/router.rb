@@ -47,7 +47,7 @@ module OAuth2
       
       access_token = header && header =~ /^OAuth\s+/ ?
                      header.gsub(/^OAuth\s+/, '') :
-                     params[OAUTH_TOKEN]
+                     params[OAUTH_TOKEN] || params[ACCESS_TOKEN]
       
       Provider::AccessToken.new(resource_owner,
                                 scopes,

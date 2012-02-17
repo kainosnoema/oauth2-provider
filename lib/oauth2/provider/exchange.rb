@@ -187,12 +187,7 @@ module OAuth2
       end
       
       def validate_authorization
-        unless @authorization
-          @error = INVALID_GRANT
-          @error_description = 'The access grant you supplied is invalid'
-        end
-        
-        if @authorization and @authorization.expired?
+        if !@authorization or @authorization.expired?
           @error = INVALID_GRANT
           @error_description = 'The access grant you supplied is invalid'
         end
